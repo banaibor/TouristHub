@@ -1,0 +1,100 @@
+@page "/"
+@inject NavigationManager Navigation
+@inject ILogger<Index> Logger
+
+<div class="container-fluid py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="card-title text-success">? Blazor is Working!</h2>
+                    <p class="card-text">
+                        Congratulations! The MAUI Blazor WebView is loading correctly.
+                    </p>
+                    <div class="alert alert-info">
+                        <strong>Platform:</strong> @GetPlatform()<br />
+                        <strong>Current Time:</strong> @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")<br />
+                        <strong>Navigation URI:</strong> @Navigation.Uri
+                    </div>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="/diagnostic" class="btn btn-primary">
+                            <i class="bi bi-gear me-1"></i> Go to Diagnostic
+                        </a>
+                        <a href="/login" class="btn btn-success">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Go to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        try
+        {
+            Logger?.LogInformation("Index page loaded successfully - showing welcome content");
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error in Index page initialization");
+        }
+    }
+
+    private string GetPlatform()
+    {
+#if ANDROID
+        return "Android";
+#elif IOS
+        return "iOS";
+#elif MACCATALYST
+        return "MacCatalyst";
+#elif WINDOWS
+        return "Windows";
+#else
+        return "Unknown";
+#endif
+    }
+}
+
+<style>
+    .card {
+        background: #1E293B;
+        border: 1px solid #374151;
+        color: #F8FAFC;
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+
+    .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid #3B82F6;
+        color: #93C5FD;
+        border-radius: 0.5rem;
+    }
+
+    .btn {
+        border-radius: 0.5rem;
+        font-weight: 600;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .btn-primary {
+        background: #3B82F6;
+        border-color: #3B82F6;
+    }
+
+    .btn-success {
+        background: #10B981;
+        border-color: #10B981;
+    }
+
+    body {
+        background: #0F172A !important;
+    }
+</style>

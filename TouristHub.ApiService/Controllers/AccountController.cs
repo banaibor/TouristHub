@@ -20,6 +20,12 @@ public class AccountController : ControllerBase
         _signInManager = signInManager;
     }
 
+    [HttpGet("ping")]
+    public IActionResult Ping()
+    {
+        return Ok(new { message = "API is reachable", timestamp = DateTime.UtcNow });
+    }
+
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterDto model)
     {

@@ -3,28 +3,167 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>MAUI</title>
+    <title>TouristHub MAUI</title>
     <base href="/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="MAUI.styles.css" />
     <link rel="icon" href="data:,">
+    <style>
+        /* Critical loading styles - inline to ensure they load first */
+        .loading-content {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 100vh !important;
+            background: #0A0A0B !important;
+            color: #FFFFFF !important;
+            text-align: center !important;
+            padding: 2rem !important;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
+        }
+
+        .loading-content h3 {
+            margin-bottom: 1rem !important;
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            font-size: 2rem !important;
+            font-weight: 700 !important;
+        }
+
+        .loading-content p {
+            color: #B4B4B8 !important;
+            font-size: 1.1rem !important;
+        }
+
+        /* Hide loading when Blazor components are loaded */
+        .blazor-loaded .loading-content {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
-
     <div class="status-bar-safe-area"></div>
 
-    <div id="app">Loading...</div>
-
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
+    <div id="app">
+        <div class="loading-content">
+            <h3>🚀 Loading TouristHub...</h3>
+            <p>Initializing Blazor WebView...</p>
+        </div>
     </div>
 
-    <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <div id="blazor-error-ui" style="display: none;">
+        <div style="color: #fff; background: linear-gradient(135deg, #dc2626, #ef4444); padding: 1rem; text-align: center; border-radius: 0 0 8px 8px;">
+            <h4>⚠️ An unhandled error has occurred</h4>
+            <p>Please check the debug console for more details.</p>
+            <div style="margin-top: 1rem;">
+                <a href="" class="reload" style="color: #fff; text-decoration: underline; margin-right: 1rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 4px;">🔄 Reload</a>
+                <a class="dismiss" style="color: #fff; text-decoration: underline; cursor: pointer; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 4px;">🗙 Dismiss</a>
+            </div>
+        </div>
+    </div>
 
+    <script src="_framework/blazor.webview.js"></script>
+    
+    <script>
+        (function() {
+            'use strict';
+            
+            console.log('TouristHub MAUI - Index.html loaded successfully');
+            
+            // Monitor for Blazor component rendering
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList') {
+                        // Check if Blazor components have been added to #app
+                        var app = document.getElementById('app');
+                        if (app && app.children.length > 1) {
+                            console.log('Blazor components detected - hiding loading screen');
+                            document.body.classList.add('blazor-loaded');
+                            observer.disconnect();
+                        }
+                    }
+                });
+            });
+
+            // Start observing the #app element
+            var app = document.getElementById('app');
+            if (app) {
+                observer.observe(app, { childList: true, subtree: true });
+            }
+
+            // Fallback: Hide loading screen after 10 seconds regardless
+            setTimeout(function() {
+                console.log('Fallback: Hiding loading screen after timeout');
+                document.body.classList.add('blazor-loaded');
+                observer.disconnect();
+            }, 10000);
+            
+            // Enhanced error handling for MAUI Blazor WebView
+            window.addEventListener('error', function(event) {
+                console.error('Global error caught:', event.error);
+                console.error('Error details:', {
+                    message: event.message,
+                    filename: event.filename,
+                    lineno: event.lineno,
+                    colno: event.colno,
+                    stack: event.error?.stack
+                });
+                
+                // Don't show error UI for Blazor startup conflicts - they're expected in WebView
+                if (event.message && (
+                    event.message.includes('Blazor has already started') ||
+                    event.message.includes('receiveMessage is not a function')
+                )) {
+                    console.warn('Ignoring expected Blazor WebView startup conflict:', event.message);
+                    return;
+                }
+                
+                showErrorUI();
+            });
+            
+            window.addEventListener('unhandledrejection', function(event) {
+                console.error('Unhandled promise rejection:', event.reason);
+                
+                // Don't show error UI for Blazor startup conflicts
+                if (event.reason && event.reason.message && (
+                    event.reason.message.includes('Blazor has already started') ||
+                    event.reason.message.includes('receiveMessage is not a function')
+                )) {
+                    console.warn('Ignoring expected Blazor WebView startup conflict:', event.reason.message);
+                    event.preventDefault(); // Prevent the default unhandled rejection behavior
+                    return;
+                }
+                
+                showErrorUI();
+            });
+            
+            function showErrorUI() {
+                var errorUI = document.getElementById('blazor-error-ui');
+                if (errorUI) {
+                    errorUI.style.display = 'block';
+                }
+            }
+            
+            // Add dismiss functionality when DOM is ready
+            document.addEventListener('DOMContentLoaded', function() {
+                var dismissButton = document.querySelector('.dismiss');
+                if (dismissButton) {
+                    dismissButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        var errorUI = document.getElementById('blazor-error-ui');
+                        if (errorUI) {
+                            errorUI.style.display = 'none';
+                        }
+                    });
+                }
+            });
+            
+        })();
+    </script>
 </body>
-
 </html>

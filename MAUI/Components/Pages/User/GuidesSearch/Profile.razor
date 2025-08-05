@@ -1,0 +1,54 @@
+@page "/user/guides/profile/{GuideId:int}"
+
+@inject NavigationManager Navigation
+@inject ILogger<Profile> Logger
+
+<PageTitle>Guide Profile - TouristHub</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-person-circle"></i> Guide Profile</h2>
+                    <p class="text-muted">Detailed information about your selected guide</p>
+                </div>
+                <button class="btn btn-outline-primary" @onclick="GoBackToSearch">
+                    <i class="bi bi-arrow-left"></i> Back to Search
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <div class="mb-4">
+                        <span style="font-size: 4rem;"><i class="bi bi-person-circle"></i></span>
+                    </div>
+                    <h4>Guide Profile Coming Soon</h4>
+                    <p class="text-muted">Guide ID: @GuideId</p>
+                    <p class="text-muted">Detailed guide profiles with photos, reviews, and booking functionality will be implemented in the next phase.</p>
+                    <button class="btn btn-primary" @onclick="GoBackToSearch">
+                        Back to Guide Search
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int GuideId { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Logger?.LogInformation($"Guide Profile component initialized for Guide ID: {GuideId}");
+    }
+
+    private void GoBackToSearch()
+    {
+        Navigation?.NavigateTo("/user/guides/search");
+    }
+}

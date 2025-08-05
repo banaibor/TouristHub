@@ -2,7 +2,7 @@
 @inject NavigationManager Navigation
 
 @code {
-    private bool HideNavMenu => Navigation.Uri.EndsWith("/");
+    private bool HideNavMenu => Navigation.Uri.EndsWith("/") || Navigation.Uri.EndsWith("/register");
 }
 
 <div class="page">
