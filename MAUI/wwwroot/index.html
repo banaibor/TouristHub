@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="MAUI.styles.css" />
     <link rel="icon" href="data:,">
     <style>
-        /* Critical loading styles - inline to ensure they load first */
+        /* Critical loading styles */
         .loading-content {
             display: flex !important;
             flex-direction: column !important;
@@ -39,9 +39,40 @@
             font-size: 1.1rem !important;
         }
 
-        /* Hide loading when Blazor components are loaded */
-        .blazor-loaded .loading-content {
-            display: none !important;
+        /* Test content that will replace loading */
+        .test-content {
+            display: none;
+            background: #0A0A0B;
+            color: #FFFFFF;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .test-content.show {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .test-content h1 {
+            color: #10B981;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .test-button {
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 1rem;
         }
     </style>
 </head>
@@ -50,9 +81,25 @@
     <div class="status-bar-safe-area"></div>
 
     <div id="app">
-        <div class="loading-content">
+        <div class="loading-content" id="loading">
             <h3>🚀 Loading TouristHub...</h3>
             <p>Initializing Blazor WebView...</p>
+        </div>
+        
+        <!-- Fallback content in case Blazor doesn't load -->
+        <div class="test-content" id="fallback">
+            <h1>✅ Static Content Loaded!</h1>
+            <div style="background: #1E1E21; padding: 2rem; border-radius: 1rem; margin: 2rem 0; border: 1px solid #374151;">
+                <h3>MAUI WebView Test (Static)</h3>
+                <p style="color: #B4B4B8; font-size: 1.1rem; margin-bottom: 1.5rem;">
+                    This is static HTML content. If you see this, the WebView is working but Blazor components aren't loading.
+                </p>
+                <div style="margin: 1rem 0;">
+                    <strong style="color: #10B981;">Status:</strong> WebView ✅ | Blazor ❌
+                </div>
+                <button class="test-button" onclick="testClick()">Test Click (Static JS)</button>
+                <div id="click-count" style="margin-top: 1rem;">Clicks: 0</div>
+            </div>
         </div>
     </div>
 
@@ -75,15 +122,26 @@
             
             console.log('TouristHub MAUI - Index.html loaded successfully');
             
+            var clickCount = 0;
+            
+            // Test function for static content
+            window.testClick = function() {
+                clickCount++;
+                document.getElementById('click-count').textContent = 'Clicks: ' + clickCount;
+                console.log('Static click test: ' + clickCount);
+            };
+
             // Monitor for Blazor component rendering
+            var blazorLoaded = false;
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     if (mutation.type === 'childList') {
-                        // Check if Blazor components have been added to #app
                         var app = document.getElementById('app');
-                        if (app && app.children.length > 1) {
+                        // Check if Blazor components have been added (more than just loading content)
+                        if (app && app.children.length > 2) {
                             console.log('Blazor components detected - hiding loading screen');
-                            document.body.classList.add('blazor-loaded');
+                            blazorLoaded = true;
+                            document.getElementById('loading').style.display = 'none';
                             observer.disconnect();
                         }
                     }
@@ -96,25 +154,21 @@
                 observer.observe(app, { childList: true, subtree: true });
             }
 
-            // Fallback: Hide loading screen after 10 seconds regardless
+            // Fallback: Show static content if Blazor doesn't load within 5 seconds
             setTimeout(function() {
-                console.log('Fallback: Hiding loading screen after timeout');
-                document.body.classList.add('blazor-loaded');
+                if (!blazorLoaded) {
+                    console.log('Fallback: Showing static content - Blazor components did not load');
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('fallback').classList.add('show');
+                }
                 observer.disconnect();
-            }, 10000);
+            }, 5000);
             
             // Enhanced error handling for MAUI Blazor WebView
             window.addEventListener('error', function(event) {
                 console.error('Global error caught:', event.error);
-                console.error('Error details:', {
-                    message: event.message,
-                    filename: event.filename,
-                    lineno: event.lineno,
-                    colno: event.colno,
-                    stack: event.error?.stack
-                });
                 
-                // Don't show error UI for Blazor startup conflicts - they're expected in WebView
+                // Don't show error UI for Blazor startup conflicts
                 if (event.message && (
                     event.message.includes('Blazor has already started') ||
                     event.message.includes('receiveMessage is not a function')
@@ -135,7 +189,7 @@
                     event.reason.message.includes('receiveMessage is not a function')
                 )) {
                     console.warn('Ignoring expected Blazor WebView startup conflict:', event.reason.message);
-                    event.preventDefault(); // Prevent the default unhandled rejection behavior
+                    event.preventDefault();
                     return;
                 }
                 
@@ -149,7 +203,7 @@
                 }
             }
             
-            // Add dismiss functionality when DOM is ready
+            // Add dismiss functionality
             document.addEventListener('DOMContentLoaded', function() {
                 var dismissButton = document.querySelector('.dismiss');
                 if (dismissButton) {
