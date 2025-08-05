@@ -5,219 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>TouristHub MAUI</title>
     <base href="/" />
-    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/app.css" />
-    <link rel="stylesheet" href="MAUI.styles.css" />
     <link rel="icon" href="data:,">
-    <style>
-        /* Critical loading styles */
-        .loading-content {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            min-height: 100vh !important;
-            background: #0A0A0B !important;
-            color: #FFFFFF !important;
-            text-align: center !important;
-            padding: 2rem !important;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif !important;
-        }
-
-        .loading-content h3 {
-            margin-bottom: 1rem !important;
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            background-clip: text !important;
-            font-size: 2rem !important;
-            font-weight: 700 !important;
-        }
-
-        .loading-content p {
-            color: #B4B4B8 !important;
-            font-size: 1.1rem !important;
-        }
-
-        /* Test content that will replace loading */
-        .test-content {
-            display: none;
-            background: #0A0A0B;
-            color: #FFFFFF;
-            min-height: 100vh;
-            padding: 2rem;
-            text-align: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-        }
-
-        .test-content.show {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .test-content h1 {
-            color: #10B981;
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .test-button {
-            background: linear-gradient(135deg, #6366F1, #8B5CF6);
-            color: white;
-            border: none;
-            padding: 1rem 2rem;
-            border-radius: 0.5rem;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            margin: 1rem;
-        }
-    </style>
 </head>
 
 <body>
-    <div class="status-bar-safe-area"></div>
-
     <div id="app">
-        <div class="loading-content" id="loading">
-            <h3>🚀 Loading TouristHub...</h3>
-            <p>Initializing Blazor WebView...</p>
-        </div>
-        
-        <!-- Fallback content in case Blazor doesn't load -->
-        <div class="test-content" id="fallback">
-            <h1>✅ Static Content Loaded!</h1>
-            <div style="background: #1E1E21; padding: 2rem; border-radius: 1rem; margin: 2rem 0; border: 1px solid #374151;">
-                <h3>MAUI WebView Test (Static)</h3>
-                <p style="color: #B4B4B8; font-size: 1.1rem; margin-bottom: 1.5rem;">
-                    This is static HTML content. If you see this, the WebView is working but Blazor components aren't loading.
-                </p>
-                <div style="margin: 1rem 0;">
-                    <strong style="color: #10B981;">Status:</strong> WebView ✅ | Blazor ❌
-                </div>
-                <button class="test-button" onclick="testClick()">Test Click (Static JS)</button>
-                <div id="click-count" style="margin-top: 1rem;">Clicks: 0</div>
-            </div>
+        <div style="background: #000; color: #00FF00; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: monospace; text-align: center;">
+            <h3 style="font-size: 2rem; margin-bottom: 1rem; text-shadow: 0 0 10px #00FF00;">🚀 Loading TouristHub...</h3>
+            <p style="color: #FFFF00; font-size: 1.1rem;">Initializing Blazor WebView...</p>
         </div>
     </div>
 
-    <div id="blazor-error-ui" style="display: none;">
-        <div style="color: #fff; background: linear-gradient(135deg, #dc2626, #ef4444); padding: 1rem; text-align: center; border-radius: 0 0 8px 8px;">
-            <h4>⚠️ An unhandled error has occurred</h4>
-            <p>Please check the debug console for more details.</p>
-            <div style="margin-top: 1rem;">
-                <a href="" class="reload" style="color: #fff; text-decoration: underline; margin-right: 1rem; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 4px;">🔄 Reload</a>
-                <a class="dismiss" style="color: #fff; text-decoration: underline; cursor: pointer; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 4px;">🗙 Dismiss</a>
-            </div>
-        </div>
-    </div>
-
-    <script src="_framework/blazor.webview.js"></script>
+    <script src="_framework/blazor.webview.js" autostart="false"></script>
     
     <script>
-        (function() {
-            'use strict';
+        console.log('🚀 MAUI - Starting Blazor manually');
+        
+        // Wait for DOM to be ready, then start Blazor manually
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📋 DOM ready, starting Blazor...');
             
-            console.log('TouristHub MAUI - Index.html loaded successfully');
-            
-            var clickCount = 0;
-            
-            // Test function for static content
-            window.testClick = function() {
-                clickCount++;
-                document.getElementById('click-count').textContent = 'Clicks: ' + clickCount;
-                console.log('Static click test: ' + clickCount);
-            };
-
-            // Monitor for Blazor component rendering
-            var blazorLoaded = false;
-            var observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.type === 'childList') {
-                        var app = document.getElementById('app');
-                        // Check if Blazor components have been added (more than just loading content)
-                        if (app && app.children.length > 2) {
-                            console.log('Blazor components detected - hiding loading screen');
-                            blazorLoaded = true;
-                            document.getElementById('loading').style.display = 'none';
-                            observer.disconnect();
-                        }
-                    }
-                });
-            });
-
-            // Start observing the #app element
-            var app = document.getElementById('app');
-            if (app) {
-                observer.observe(app, { childList: true, subtree: true });
-            }
-
-            // Fallback: Show static content if Blazor doesn't load within 5 seconds
+            // Start Blazor manually to avoid conflicts
             setTimeout(function() {
-                if (!blazorLoaded) {
-                    console.log('Fallback: Showing static content - Blazor components did not load');
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('fallback').classList.add('show');
+                if (window.Blazor && !window.blazorStarted) {
+                    window.blazorStarted = true;
+                    console.log('✅ Starting Blazor manually...');
+                    
+                    try {
+                        Blazor.start();
+                        console.log('✅ Blazor started successfully!');
+                    } catch (error) {
+                        console.warn('⚠️ Blazor start error (might be normal):', error.message);
+                    }
+                } else {
+                    console.log('⏳ Blazor not ready yet, waiting...');
                 }
-                observer.disconnect();
-            }, 5000);
-            
-            // Enhanced error handling for MAUI Blazor WebView
-            window.addEventListener('error', function(event) {
-                console.error('Global error caught:', event.error);
-                
-                // Don't show error UI for Blazor startup conflicts
-                if (event.message && (
-                    event.message.includes('Blazor has already started') ||
-                    event.message.includes('receiveMessage is not a function')
-                )) {
-                    console.warn('Ignoring expected Blazor WebView startup conflict:', event.message);
-                    return;
-                }
-                
-                showErrorUI();
-            });
-            
-            window.addEventListener('unhandledrejection', function(event) {
-                console.error('Unhandled promise rejection:', event.reason);
-                
-                // Don't show error UI for Blazor startup conflicts
-                if (event.reason && event.reason.message && (
-                    event.reason.message.includes('Blazor has already started') ||
-                    event.reason.message.includes('receiveMessage is not a function')
-                )) {
-                    console.warn('Ignoring expected Blazor WebView startup conflict:', event.reason.message);
-                    event.preventDefault();
-                    return;
-                }
-                
-                showErrorUI();
-            });
-            
-            function showErrorUI() {
-                var errorUI = document.getElementById('blazor-error-ui');
-                if (errorUI) {
-                    errorUI.style.display = 'block';
-                }
-            }
-            
-            // Add dismiss functionality
-            document.addEventListener('DOMContentLoaded', function() {
-                var dismissButton = document.querySelector('.dismiss');
-                if (dismissButton) {
-                    dismissButton.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        var errorUI = document.getElementById('blazor-error-ui');
-                        if (errorUI) {
-                            errorUI.style.display = 'none';
-                        }
-                    });
-                }
-            });
-            
-        })();
+            }, 100);
+        });
+        
+        console.log('✅ MAUI initialization script loaded');
     </script>
 </body>
 </html>

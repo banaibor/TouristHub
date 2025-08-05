@@ -59,7 +59,8 @@ namespace MAUI
                 return httpClient;
             });
 
-#if DEBUG
+            // Temporarily disable developer tools to avoid startup conflicts
+#if DEBUG && !ANDROID
             builder.Services.AddBlazorWebViewDeveloperTools();
 #endif
 
