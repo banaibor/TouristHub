@@ -1,6 +1,7 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using System;
 
 namespace MAUI
 {
@@ -15,28 +16,21 @@ namespace MAUI
         {
             try
             {
-                System.Diagnostics.Debug.WriteLine("[MAUI ANDROID] MainActivity.OnCreate starting");
+                System.Diagnostics.Debug.WriteLine("[MAUI Android] MainActivity.OnCreate starting");
 
-                // Enable WebView debugging in debug builds
 #if DEBUG
+                // Enable WebView debugging for better troubleshooting
                 Android.Webkit.WebView.SetWebContentsDebuggingEnabled(true);
-                System.Diagnostics.Debug.WriteLine("[MAUI ANDROID] WebView debugging enabled");
-                
-                // Force disable HTTPS for localhost development
-                if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
-                {
-                    System.Diagnostics.Debug.WriteLine("[MAUI ANDROID] Configuring cleartext traffic for development");
-                }
+                System.Diagnostics.Debug.WriteLine("[MAUI Android] WebView debugging enabled");
 #endif
 
                 base.OnCreate(savedInstanceState);
-                
-                System.Diagnostics.Debug.WriteLine("[MAUI ANDROID] MainActivity.OnCreate completed successfully");
+                System.Diagnostics.Debug.WriteLine("[MAUI Android] MainActivity.OnCreate completed successfully");
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[MAUI ANDROID] MainActivity.OnCreate error: {ex}");
-                // Don't rethrow to prevent app crash
+                System.Diagnostics.Debug.WriteLine($"[MAUI Android] MainActivity.OnCreate error: {ex}");
+                // Don't rethrow to prevent app crash during development
             }
         }
 
@@ -50,7 +44,6 @@ namespace MAUI
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[MAUI Android] MainActivity.OnStart error: {ex}");
-                throw;
             }
         }
 
@@ -90,20 +83,6 @@ namespace MAUI
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[MAUI Android] MainActivity.OnDestroy error: {ex}");
-                // Don't throw on destroy
-            }
-        }
-
-        public override void OnBackPressed()
-        {
-            try
-            {
-                System.Diagnostics.Debug.WriteLine("[MAUI Android] MainActivity.OnBackPressed");
-                base.OnBackPressed();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[MAUI Android] MainActivity.OnBackPressed error: {ex}");
             }
         }
     }

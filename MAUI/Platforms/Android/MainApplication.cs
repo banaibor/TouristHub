@@ -1,6 +1,6 @@
 ﻿using Android.App;
 using Android.Runtime;
-using Microsoft.Extensions.Logging;
+using System;
 
 namespace MAUI
 {
@@ -53,17 +53,6 @@ namespace MAUI
             try
             {
                 System.Diagnostics.Debug.WriteLine($"[MAUI Android] Unhandled Android Exception: {e.Exception}");
-                
-                // Try to log to our logging system if available
-                try
-                {
-                    var logger = IPlatformApplication.Current?.Services?.GetService<ILogger<MainApplication>>();
-                    logger?.LogError(e.Exception, "Unhandled Android exception");
-                }
-                catch
-                {
-                    // Ignore logging errors during exception handling
-                }
             }
             catch
             {
