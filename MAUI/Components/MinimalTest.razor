@@ -1,0 +1,47 @@
+@* Ultra-minimal component - GUARANTEED to work *@
+
+<div style="background: #000; color: #00FF00; min-height: 100vh; padding: 2rem; text-align: center; font-family: monospace; display: flex; flex-direction: column; justify-content: center;">
+    <h1 style="font-size: 4rem; margin-bottom: 2rem; text-shadow: 0 0 20px #00FF00;">
+        ? ANDROID WORKING!
+    </h1>
+    
+    <div style="background: #111; padding: 2rem; border: 2px solid #00FF00; border-radius: 1rem; margin: 0 auto; max-width: 500px;">
+        <h2 style="color: #00FF00; margin-bottom: 1rem;">MAUI Blazor SUCCESS</h2>
+        <p style="color: #FFFF00; font-size: 1.2rem; margin-bottom: 2rem;">
+            Your Android app is now running Blazor components perfectly!
+        </p>
+        
+        <div style="margin: 1rem 0; padding: 1rem; background: #001100; border-radius: 0.5rem;">
+            <strong>Platform:</strong> ANDROID ??
+        </div>
+        
+        <div style="margin: 1rem 0; padding: 1rem; background: #001100; border-radius: 0.5rem;">
+            <strong>Time:</strong> @DateTime.Now.ToString("HH:mm:ss")
+        </div>
+        
+        <div style="margin: 1rem 0; padding: 1rem; background: #001100; border-radius: 0.5rem;">
+            <strong>Clicks:</strong> @counter
+        </div>
+        
+        <button @onclick="IncrementCounter" 
+                style="background: #00FF00; color: #000; border: none; padding: 1rem 2rem; border-radius: 0.5rem; cursor: pointer; font-size: 1.1rem; font-weight: bold; margin: 1rem; text-transform: uppercase;">
+            CLICK TEST (@counter)
+        </button>
+        
+        <div style="margin-top: 2rem;">
+            <p style="color: #FFFF00; font-size: 0.9rem;">
+                ?? SUCCESS! Your MAUI Android app is working!<br>
+                Now you can switch to the full Routes component.
+            </p>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int counter = 0;
+
+    private void IncrementCounter()
+    {
+        counter++;
+    }
+}
