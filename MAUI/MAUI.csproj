@@ -44,6 +44,21 @@
         <!-- Blazor WebView settings -->
         <BlazorWebViewDeveloperTools Condition="'$(Configuration)' == 'Debug'">true</BlazorWebViewDeveloperTools>
         <BlazorEnableCompression>false</BlazorEnableCompression>
+        
+        <!-- Build optimization and file lock prevention -->
+        <UseSharedCompilation>false</UseSharedCompilation>
+        <BuildInParallel>false</BuildInParallel>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <DisableTransitiveProjectReferences>true</DisableTransitiveProjectReferences>
+        
+        <!-- Android specific build settings to prevent file locks -->
+        <AndroidUseSharedRuntime Condition="'$(Configuration)' == 'Debug'">false</AndroidUseSharedRuntime>
+        <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
+        <AndroidSkipResourceExtraction>true</AndroidSkipResourceExtraction>
+        
+        <!-- MSBuild settings to prevent file locks -->
+        <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
+        <DisableImplicitFrameworkReferences>false</DisableImplicitFrameworkReferences>
     </PropertyGroup>
 
     <ItemGroup>
@@ -80,10 +95,19 @@
         <BlazorWebAssemblyResource Include="wwwroot\**" />
     </ItemGroup>
 
+    <!-- Custom targets to prevent file locks -->
     <Target Name="GetTargetPath">
         <PropertyGroup>
             <TargetPath>$(OutputPath)$(AssemblyName).dll</TargetPath>
         </PropertyGroup>
+    </Target>
+    
+    <!-- Clean target that forces cleanup of locked files -->
+    <Target Name="CleanLockedFiles" BeforeTargets="Clean">
+        <PropertyGroup>
+            <ResourceDesignerFile>$(IntermediateOutputPath)__Microsoft.Android.Resource.Designer.cs</ResourceDesignerFile>
+        </PropertyGroup>
+        <Delete Files="$(ResourceDesignerFile)" ContinueOnError="true" />
     </Target>
 
 </Project>

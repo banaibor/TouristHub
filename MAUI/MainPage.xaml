@@ -6,7 +6,7 @@
 
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
-            <RootComponent Selector="#app" ComponentType="{x:Type local:Components.SimpleTest}" />
+            <RootComponent Selector="#app" ComponentType="{x:Type local:Components.EmergencyTest}" />
         </BlazorWebView.RootComponents>
     </BlazorWebView>
 

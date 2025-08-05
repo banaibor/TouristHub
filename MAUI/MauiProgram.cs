@@ -8,6 +8,7 @@ namespace MAUI
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
+            
             builder
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
@@ -23,8 +24,12 @@ namespace MAUI
             // Add detailed logging for debugging
             builder.Services.AddLogging(logging =>
             {
+#if DEBUG
                 logging.AddDebug();
                 logging.SetMinimumLevel(LogLevel.Debug);
+#else
+                logging.SetMinimumLevel(LogLevel.Information);
+#endif
             });
 
             // Register HttpClient with Android-specific configuration
@@ -49,13 +54,13 @@ namespace MAUI
                 
                 // Add default headers
                 httpClient.DefaultRequestHeaders.Add("User-Agent", "TouristHub-MAUI");
+                httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
                 
                 return httpClient;
             });
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
-            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
@@ -64,14 +69,14 @@ namespace MAUI
         private static string GetBackendUrl()
         {
 #if ANDROID
-            // For Android emulator, always use 10.0.2.2 which maps to host's localhost
-            var backendUrl = "http://10.0.2.2:5500/";
-            System.Diagnostics.Debug.WriteLine($"[MAUI ANDROID] Using hardcoded Android emulator URL: {backendUrl}");
+            // For Android emulator, use 10.0.2.2 which maps to host's localhost:5499
+            var backendUrl = "http://10.0.2.2:5499/";
+            System.Diagnostics.Debug.WriteLine($"[MAUI ANDROID] Using Android emulator URL: {backendUrl}");
             return backendUrl;
 #else
             // Try to get from environment variable first for other platforms
-            var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
-            var backendUrl = apiBaseUrl ?? "http://localhost:5500/";
+            var apiBaseUrl = System.Environment.GetEnvironmentVariable("API_BASE_URL");
+            var backendUrl = apiBaseUrl ?? "http://localhost:5499/";
             System.Diagnostics.Debug.WriteLine($"[MAUI] Using URL: {backendUrl}");
             return backendUrl;
 #endif
