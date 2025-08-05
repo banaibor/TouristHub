@@ -1,6 +1,137 @@
-﻿<Router AppAssembly="@typeof(MauiProgram).Assembly">
-    <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
-    </Found>
-</Router>
+﻿@using Microsoft.AspNetCore.Components.Web
+@inject NavigationManager Navigation
+@inject ILogger<Routes> Logger
+
+<ErrorBoundary>
+    <ChildContent>
+        <Router AppAssembly="@typeof(MauiProgram).Assembly">
+            <Found Context="routeData">
+                <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+                <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+            </Found>
+            <NotFound>
+                <PageTitle>Not Found</PageTitle>
+                <LayoutView Layout="@typeof(Layout.MainLayout)">
+                    <div class="container-fluid">
+                        <div class="row justify-content-center">
+                            <div class="col-md-6">
+                                <div class="card text-center">
+                                    <div class="card-body">
+                                        <div class="display-1 text-muted mb-3">
+                                            <i class="bi bi-exclamation-triangle"></i>
+                                        </div>
+                                        <h2 class="card-title">Page Not Found</h2>
+                                        <p class="card-text text-muted">
+                                            The page you're looking for doesn't exist or has been moved.
+                                        </p>
+                                        <div class="mt-4">
+                                            <a href="/diagnostic" class="btn btn-info me-2">
+                                                <i class="bi bi-gear"></i>
+                                                Diagnostic
+                                            </a>
+                                            <a href="/login" class="btn btn-primary me-2">
+                                                <i class="bi bi-box-arrow-in-right"></i>
+                                                Go to Login
+                                            </a>
+                                            <button onclick="history.back()" class="btn btn-outline-primary">
+                                                <i class="bi bi-arrow-left"></i>
+                                                Go Back
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </LayoutView>
+            </NotFound>
+        </Router>
+    </ChildContent>
+    <ErrorContent Context="errorException">
+        <div class="container-fluid">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <div class="card border-danger">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                Blazor Router Error
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-danger">
+                                <strong>Something went wrong in the routing system!</strong>
+                                <p class="mb-0">The application encountered an error while trying to navigate.</p>
+                            </div>
+                            
+                            <div class="text-center mt-4">
+                                <button class="btn btn-primary me-2" @onclick="RecoverFromError">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    Try Again
+                                </button>
+                                <a href="/diagnostic" class="btn btn-info me-2">
+                                    <i class="bi bi-gear"></i>
+                                    Diagnostic
+                                </a>
+                                <a href="/login" class="btn btn-outline-primary">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                    Go to Login
+                                </a>
+                            </div>
+
+                            @* Only show error details in debug mode *@
+                            @if (System.Diagnostics.Debugger.IsAttached)
+                            {
+                                <details class="mt-4">
+                                    <summary class="btn btn-outline-secondary btn-sm">
+                                        <i class="bi bi-bug"></i> Show Error Details (Debug Mode)
+                                    </summary>
+                                    <div class="mt-2">
+                                        <pre class="bg-dark text-light p-3 small" style="max-height: 300px; overflow-y: auto; border-radius: 0.5rem;">@errorException?.ToString()</pre>
+                                    </div>
+                                </details>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ErrorContent>
+</ErrorBoundary>
+
+@code {
+    protected override void OnInitialized()
+    {
+        try
+        {
+            Logger?.LogInformation("Routes component initialized");
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error initializing Routes component");
+        }
+    }
+
+    private void RecoverFromError()
+    {
+        try
+        {
+            Logger?.LogInformation("Attempting error recovery");
+            // Try to navigate to diagnostic page first
+            Navigation.NavigateTo("/diagnostic", forceLoad: true);
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error during recovery attempt");
+            try
+            {
+                // Fallback: try to reload current page
+                Navigation.NavigateTo(Navigation.Uri, forceLoad: true);
+            }
+            catch (Exception fallbackEx)
+            {
+                Logger?.LogError(fallbackEx, "Fallback recovery also failed");
+            }
+        }
+    }
+}

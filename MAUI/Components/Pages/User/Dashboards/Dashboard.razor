@@ -1,4 +1,334 @@
 @page "/user/dashboards/dashboard"
 
-<h3>User Dashboard</h3>
-<p>Welcome to the User section.</p>
+@inject NavigationManager Navigation
+@inject ILogger<Dashboard> Logger
+
+<PageTitle>TouristHub - User Dashboard</PageTitle>
+
+<div class="container-fluid">
+    <!-- Welcome Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h1 class="display-6 mb-2"><i class="bi bi-mountain"></i> Welcome to TouristHub</h1>
+                            <p class="lead mb-0">Discover the hidden gems of Meghalaya with verified local guides</p>
+                            <small class="opacity-75">Explore authentic experiences, connect with local communities, and create unforgettable memories</small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="display-1 opacity-25"><i class="bi bi-compass"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-success mb-2">150+</div>
+                    <h6 class="card-title">Verified Guides</h6>
+                    <small class="text-muted">Licensed local experts</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-info mb-2">25+</div>
+                    <h6 class="card-title">Destinations</h6>
+                    <small class="text-muted">Across Meghalaya</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-warning mb-2">15+</div>
+                    <h6 class="card-title">Languages</h6>
+                    <small class="text-muted">Multi-lingual support</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 mb-3">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <div class="display-4 text-danger mb-2">500+</div>
+                    <h6 class="card-title">Happy Tourists</h6>
+                    <small class="text-muted">Satisfied customers</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Features -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="mb-3"><i class="bi bi-bullseye"></i> Explore Meghalaya</h3>
+        </div>
+        
+        <!-- Discover Guides -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 feature-card" @onclick="NavigateToGuidesSearch">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-person-badge display-3 text-primary"></i>
+                    </div>
+                    <h5 class="card-title"><i class="bi bi-search"></i> Discover Verified Guides</h5>
+                    <p class="card-text text-muted">Find licensed local guides by location, language, and expertise. Connect with authentic storytellers and adventure specialists.</p>
+                    <div class="feature-tags mb-3">
+                        <span class="badge bg-light text-dark me-1">Adventure</span>
+                        <span class="badge bg-light text-dark me-1">Folklore</span>
+                        <span class="badge bg-light text-dark me-1">Culture</span>
+                    </div>
+                    <button class="btn btn-primary">Search Guides</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seasonal Journeys -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-calendar-event display-3 text-success"></i>
+                    </div>
+                    <h5 class="card-title"><i class="bi bi-flower1"></i> Seasonal Journeys</h5>
+                    <p class="card-text text-muted">Curated travel experiences based on seasons. From monsoon waterfalls to winter festivals and spring blooms.</p>
+                    <div class="feature-tags mb-3">
+                        <span class="badge bg-light text-dark me-1">Monsoon</span>
+                        <span class="badge bg-light text-dark me-1">Winter</span>
+                        <span class="badge bg-light text-dark me-1">Spring</span>
+                    </div>
+                    <button class="btn btn-success" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Road Trip Routes -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-signpost display-3 text-warning"></i>
+                    </div>
+                    <h5 class="card-title"><i class="bi bi-car-front"></i> Road Trip Ready</h5>
+                    <p class="card-text text-muted">Explore offbeat destinations with detailed road trip routes. GPS-enabled paths to hidden gems and scenic spots.</p>
+                    <div class="feature-tags mb-3">
+                        <span class="badge bg-light text-dark me-1">Offbeat</span>
+                        <span class="badge bg-light text-dark me-1">Scenic</span>
+                        <span class="badge bg-light text-dark me-1">GPS</span>
+                    </div>
+                    <button class="btn btn-warning" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Village Tourism -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-house-heart display-3 text-info"></i>
+                    </div>
+                    <h5 class="card-title"><i class="bi bi-houses"></i> Village Tourism</h5>
+                    <p class="card-text text-muted">Experience authentic village life with local guide associations. Support community-based sustainable tourism.</p>
+                    <div class="feature-tags mb-3">
+                        <span class="badge bg-light text-dark me-1">Authentic</span>
+                        <span class="badge bg-light text-dark me-1">Community</span>
+                        <span class="badge bg-light text-dark me-1">Sustainable</span>
+                    </div>
+                    <button class="btn btn-info" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Updates -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-broadcast display-3 text-danger"></i>
+                    </div>
+                    <h5 class="card-title"><i class="bi bi-wifi"></i> Real-time Updates</h5>
+                    <p class="card-text text-muted">Get live updates on weather, road conditions, and local events. Stay informed for the best travel experience.</p>
+                    <div class="feature-tags mb-3">
+                        <span class="badge bg-light text-dark me-1">Weather</span>
+                        <span class="badge bg-light text-dark me-1">Traffic</span>
+                        <span class="badge bg-light text-dark me-1">Events</span>
+                    </div>
+                    <button class="btn btn-danger" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Local Experiences -->
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <div class="feature-icon mb-3">
+                        <i class="bi bi-star display-3 text-secondary"></i>
+                    </div>
+                    <h5 class="card-title"><i class="bi bi-gem"></i> Unique Experiences</h5>
+                    <p class="card-text text-muted">Beyond food, stay, and transport. Discover unique cultural experiences, adventure activities, and local interactions.</p>
+                    <div class="feature-tags mb-3">
+                        <span class="badge bg-light text-dark me-1">Cultural</span>
+                        <span class="badge bg-light text-dark me-1">Adventure</span>
+                        <span class="badge bg-light text-dark me-1">Interactive</span>
+                    </div>
+                    <button class="btn btn-secondary" disabled>Coming Soon</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Popular Destinations -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4 class="mb-3"><i class="bi bi-mountain"></i> Popular Destinations</h4>
+            <div class="row">
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="card destination-card">
+                        <div class="card-body text-center p-3">
+                            <div class="destination-icon mb-2">
+                                <i class="bi bi-droplet text-primary" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title small">Cherrapunji</h6>
+                            <small class="text-muted">Wettest Place</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="card destination-card">
+                        <div class="card-body text-center p-3">
+                            <div class="destination-icon mb-2">
+                                <i class="bi bi-tree text-success" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title small">Mawlynnong</h6>
+                            <small class="text-muted">Cleanest Village</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="card destination-card">
+                        <div class="card-body text-center p-3">
+                            <div class="destination-icon mb-2">
+                                <i class="bi bi-bridge text-warning" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title small">Nongriat</h6>
+                            <small class="text-muted">Living Bridges</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="card destination-card">
+                        <div class="card-body text-center p-3">
+                            <div class="destination-icon mb-2">
+                                <i class="bi bi-gem text-info" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title small">Dawki</h6>
+                            <small class="text-muted">Crystal Waters</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="card destination-card">
+                        <div class="card-body text-center p-3">
+                            <div class="destination-icon mb-2">
+                                <i class="bi bi-building text-secondary" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title small">Shillong</h6>
+                            <small class="text-muted">Scotland of East</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-4 col-6 mb-3">
+                    <div class="card destination-card">
+                        <div class="card-body text-center p-3">
+                            <div class="destination-icon mb-2">
+                                <i class="bi bi-circle text-dark" style="font-size: 2rem;"></i>
+                            </div>
+                            <h6 class="card-title small">Mawsynram</h6>
+                            <small class="text-muted">Caves & Rainfall</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    protected override void OnInitialized()
+    {
+        Logger?.LogInformation("User Dashboard initialized");
+    }
+
+    private void NavigateToGuidesSearch()
+    {
+        try
+        {
+            Logger?.LogInformation("Navigating to Guides Search");
+            Navigation?.NavigateTo("/user/guides/search");
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error navigating to guides search");
+        }
+    }
+}
+
+<style>
+    .feature-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .feature-icon {
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon {
+        transform: scale(1.1);
+    }
+
+    .feature-tags .badge {
+        font-size: 0.7rem;
+    }
+
+    .destination-card {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        border: none;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+    }
+
+    .destination-card:hover {
+        transform: scale(1.05);
+    }
+
+    .destination-icon {
+        font-size: 2rem;
+    }
+
+    .card-title {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .bg-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+</style>

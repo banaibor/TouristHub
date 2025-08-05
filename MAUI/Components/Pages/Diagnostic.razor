@@ -1,0 +1,151 @@
+@page "/diagnostic"
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>MAUI Blazor Diagnostic</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info">
+                <h5>? Blazor is Running!</h5>
+                <p>If you can see this page, Blazor WebView is working correctly.</p>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>Environment Information:</h6>
+                    <ul>
+                        <li><strong>Current Time:</strong> @DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")</li>
+                        <li><strong>Platform:</strong> @GetPlatform()</li>
+                        <li><strong>Blazor Interactive:</strong> @(isInteractive ? "Yes" : "No")</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>Quick Actions:</h6>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" @onclick="TestNavigation">Test Navigation</button>
+                        <button class="btn btn-success" @onclick="TestJavaScript">Test JavaScript</button>
+                        <button class="btn btn-info" @onclick="GoToLogin">Go to Login</button>
+                    </div>
+                </div>
+            </div>
+            
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert alert-secondary mt-3">
+                    <strong>Last Action:</strong> @message
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isInteractive = false;
+    private string message = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                // Test if JavaScript interop is working
+                await JS.InvokeVoidAsync("console.log", "Blazor diagnostic page loaded successfully");
+                isInteractive = true;
+                message = "JavaScript interop test successful";
+            }
+            catch (Exception ex)
+            {
+                message = $"JavaScript interop test failed: {ex.Message}";
+            }
+            StateHasChanged();
+        }
+    }
+
+    private string GetPlatform()
+    {
+#if ANDROID
+        return "Android";
+#elif IOS
+        return "iOS";
+#elif MACCATALYST
+        return "MacCatalyst";
+#elif WINDOWS
+        return "Windows";
+#else
+        return "Unknown";
+#endif
+    }
+
+    private async Task TestNavigation()
+    {
+        try
+        {
+            message = "Navigation test - staying on diagnostic page";
+            await Task.Delay(100); // Small delay to show the message
+        }
+        catch (Exception ex)
+        {
+            message = $"Navigation test failed: {ex.Message}";
+        }
+    }
+
+    private async Task TestJavaScript()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("alert", "JavaScript test successful!");
+            message = "JavaScript alert test completed";
+        }
+        catch (Exception ex)
+        {
+            message = $"JavaScript test failed: {ex.Message}";
+        }
+    }
+
+    private void GoToLogin()
+    {
+        try
+        {
+            Navigation?.NavigateTo("/login");
+            message = "Navigating to login...";
+        }
+        catch (Exception ex)
+        {
+            message = $"Navigation to login failed: {ex.Message}";
+        }
+    }
+}
+
+<style>
+    .card {
+        background: #1E293B;
+        border: 1px solid #374151;
+        color: #F8FAFC;
+    }
+    
+    .card-header {
+        background: #374151;
+        border-bottom: 1px solid #4B5563;
+    }
+    
+    .alert-info {
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid #3B82F6;
+        color: #93C5FD;
+    }
+    
+    .alert-secondary {
+        background: rgba(107, 114, 128, 0.1);
+        border: 1px solid #6B7280;
+        color: #D1D5DB;
+    }
+    
+    .btn {
+        border-radius: 0.5rem;
+        font-weight: 600;
+    }
+</style>

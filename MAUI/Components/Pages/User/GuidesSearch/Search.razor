@@ -1,0 +1,480 @@
+﻿@page "/user/guides/search"
+
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject ILogger<Search> Logger
+
+<PageTitle>Find Verified Guides - TouristHub</PageTitle>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2><i class="bi bi-compass-fill"></i> Discover Verified Guides</h2>
+                    <p class="text-muted">Connect with licensed local guides for authentic Meghalaya experiences</p>
+                </div>
+                <button class="btn btn-outline-primary" @onclick="GoBackToDashboard">
+                    <i class="bi bi-arrow-left"></i> Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Filters -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="bi bi-funnel"></i> Search Filters</h5>
+                    <div class="row g-3">
+                        <!-- Location Filter -->
+                        <div class="col-md-4">
+                            <label for="location" class="form-label"><i class="bi bi-geo-alt-fill"></i> Location</label>
+                            <select class="form-select" id="location" @bind="locationFilter">
+                                <option value="">All Locations</option>
+                                <option value="Shillong">Shillong</option>
+                                <option value="Cherrapunji">Cherrapunji</option>
+                                <option value="Mawlynnong">Mawlynnong (Cleanest Village)</option>
+                                <option value="Dawki">Dawki</option>
+                                <option value="Nongriat">Nongriat (Living Root Bridge)</option>
+                                <option value="Mawsynram">Mawsynram</option>
+                                <option value="Jowai">Jowai</option>
+                                <option value="Tura">Tura</option>
+                                <option value="Williamnagar">Williamnagar</option>
+                                <option value="Baghmara">Baghmara</option>
+                            </select>
+                        </div>
+
+                        <!-- Language Filter -->
+                        <div class="col-md-4">
+                            <label for="language" class="form-label"><i class="bi bi-translate"></i> Language</label>
+                            <select class="form-select" id="language" @bind="languageFilter">
+                                <option value="">All Languages</option>
+                                <option value="English">English</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Khasi">Khasi</option>
+                                <option value="Garo">Garo</option>
+                                <option value="Jaintia">Jaintia</option>
+                                <option value="Bengali">Bengali</option>
+                                <option value="Assamese">Assamese</option>
+                            </select>
+                        </div>
+
+                        <!-- Theme Filter -->
+                        <div class="col-md-4">
+                            <label for="theme" class="form-label"><i class="bi bi-bullseye"></i> Experience Theme</label>
+                            <select class="form-select" id="theme" @bind="themeFilter">
+                                <option value="">All Themes</option>
+                                <option value="Adventure">Adventure & Trekking</option>
+                                <option value="Folklore">Folklore & Culture</option>
+                                <option value="Nature">Nature & Wildlife</option>
+                                <option value="Photography">Photography Tours</option>
+                                <option value="Village">Village Tourism</option>
+                                <option value="Waterfall">Waterfalls & Rivers</option>
+                                <option value="Cave">Cave Exploration</option>
+                                <option value="Food">Local Cuisine</option>
+                                <option value="Festival">Festivals & Events</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Search Actions -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-primary" @onclick="SearchGuides" disabled="@isSearching">
+                                    @if (isSearching)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                        <span>Searching...</span>
+                                    }
+                                    else
+                                    {
+                                        <span><i class="bi bi-search"></i> Search Guides</span>
+                                    }
+                                </button>
+                                <button class="btn btn-outline-secondary" @onclick="ClearFilters">
+                                    Clear Filters
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results -->
+    <div class="row">
+        <div class="col-12">
+            @if (searchResults.Any())
+            {
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4><i class="bi bi-list-check"></i> Search Results (@searchResults.Count guides found)</h4>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn @(viewMode == "grid" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("grid"))">
+                            Grid View
+                        </button>
+                        <button type="button" class="btn @(viewMode == "list" ? "btn-primary" : "btn-outline-primary")" @onclick="@(() => SetViewMode("list"))">
+                            List View
+                        </button>
+                    </div>
+                </div>
+
+                @if (viewMode == "grid")
+                {
+                    <div class="row g-4">
+                        @foreach (var guide in searchResults)
+                        {
+                            <div class="col-lg-4 col-md-6">
+                                <div class="card h-100 shadow-sm guide-card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar-circle me-3">
+                                                    @guide.Name.Substring(0, 1).ToUpper()
+                                                </div>
+                                                <div>
+                                                    <h5 class="card-title mb-1">@guide.Name</h5>
+                                                    <div class="text-warning mb-1">
+                                                        @for (int i = 0; i < guide.Rating; i++)
+                                                        {
+                                                            <span>⭐</span>
+                                                        }
+                                                        <small class="text-muted ms-1">(@guide.ReviewCount reviews)</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <span class="badge bg-success">Verified</span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <small class="text-muted d-block"><i class="bi bi-geo-alt-fill"></i> @guide.Location</small>
+                                            <small class="text-muted d-block"><i class="bi bi-translate"></i> @string.Join(", ", guide.Languages)</small>
+                                            <small class="text-muted d-block"><i class="bi bi-tags-fill"></i> @string.Join(", ", guide.Specializations)</small>
+                                        </div>
+
+                                        <p class="card-text text-muted small">@guide.Description</p>
+
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong class="text-primary">₹@guide.PricePerDay/day</strong>
+                                            </div>
+                                            <div>
+                                                <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => ViewGuideProfile(guide.Id)">
+                                                    View Profile
+                                                </button>
+                                                <button class="btn btn-sm btn-primary" @onclick="() => ContactGuide(guide.Id)">
+                                                    Contact
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group">
+                        @foreach (var guide in searchResults)
+                        {
+                            <div class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div class="d-flex align-items-start">
+                                        <div class="avatar-circle me-3">
+                                            @guide.Name.Substring(0, 1).ToUpper()
+                                        </div>
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h5 class="mb-1">@guide.Name</h5>
+                                                <span class="badge bg-success">Verified</span>
+                                            </div>
+                                            <div class="text-warning mb-2">
+                                                @for (int i = 0; i < guide.Rating; i++)
+                                                {
+                                                    <span>⭐</span>
+                                                }
+                                                <small class="text-muted ms-1">(@guide.ReviewCount reviews)</small>
+                                            </div>
+                                            <p class="mb-2 text-muted">@guide.Description</p>
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <small class="text-muted"><i class="bi bi-geo-alt-fill"></i> @guide.Location</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted"><i class="bi bi-translate"></i> @string.Join(", ", guide.Languages)</small>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <small class="text-muted"><i class="bi bi-tags-fill"></i> @string.Join(", ", guide.Specializations)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <strong class="text-primary d-block">₹@guide.PricePerDay/day</strong>
+                                        <div class="mt-2">
+                                            <button class="btn btn-sm btn-outline-primary me-2" @onclick="() => ViewGuideProfile(guide.Id)">
+                                                View Profile
+                                            </button>
+                                            <button class="btn btn-sm btn-primary" @onclick="() => ContactGuide(guide.Id)">
+                                                Contact
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            }
+            else if (hasSearched)
+            {
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <span style="font-size: 4rem;"><i class="bi bi-search"></i></span>
+                    </div>
+                    <h4>No guides found</h4>
+                    <p class="text-muted">Try adjusting your search criteria or browse all available guides.</p>
+                    <button class="btn btn-primary" @onclick="ClearFilters">Browse All Guides</button>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <div class="mb-4">
+                        <span style="font-size: 4rem;"><i class="bi bi-compass"></i></span>
+                    </div>
+                    <h4>Discover Amazing Local Guides</h4>
+                    <p class="text-muted">Use the search filters above to find the perfect guide for your Meghalaya adventure!</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+    .guide-card {
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .guide-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .avatar-circle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.2rem;
+   }
+                
+    .btn-group .btn {
+        border-radius: 0;
+    }
+
+    .btn-group .btn:first-child {
+        border-top-left-radius: 0.375rem;
+        border-bottom-left-radius: 0.375rem;
+    }
+
+    .btn-group .btn:last-child {
+        border-top-right-radius: 0.375rem;
+        border-bottom-right-radius: 0.375rem;
+    }
+</style>
+
+@code {
+    private string locationFilter = string.Empty;
+    private string languageFilter = string.Empty;
+    private string themeFilter = string.Empty;
+    private List<GuideItem> searchResults = new();
+    private bool isSearching = false;
+    private bool hasSearched = false;
+    private string viewMode = "grid";
+
+    // Sample data
+    private List<GuideItem> sampleGuides = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger?.LogInformation("Guides Search component initialized");
+        await LoadSampleGuides();
+    }
+
+    private void GoBackToDashboard()
+    {
+        Navigation?.NavigateTo("/user/dashboards/dashboard");
+    }
+
+    private async Task SearchGuides()
+    {
+        isSearching = true;
+        hasSearched = true;
+        
+        try
+        {
+            Logger?.LogInformation($"Searching guides with filters: Location={locationFilter}, Language={languageFilter}, Theme={themeFilter}");
+            
+            await Task.Delay(1000);
+            
+            var filteredResults = sampleGuides.AsEnumerable();
+            
+            if (!string.IsNullOrEmpty(locationFilter))
+            {
+                filteredResults = filteredResults.Where(g => g.Location.Contains(locationFilter, StringComparison.OrdinalIgnoreCase));
+            }
+            
+            if (!string.IsNullOrEmpty(languageFilter))
+            {
+                filteredResults = filteredResults.Where(g => g.Languages.Any(l => l.Contains(languageFilter, StringComparison.OrdinalIgnoreCase)));
+            }
+            
+            if (!string.IsNullOrEmpty(themeFilter))
+            {
+                filteredResults = filteredResults.Where(g => g.Specializations.Any(s => s.Contains(themeFilter, StringComparison.OrdinalIgnoreCase)));
+            }
+            
+            searchResults = filteredResults.ToList();
+            Logger?.LogInformation($"Found {searchResults.Count} guides matching the criteria");
+        }
+        catch (Exception ex)
+        {
+            Logger?.LogError(ex, "Error searching guides");
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+
+    private void ClearFilters()
+    {
+        locationFilter = string.Empty;
+        languageFilter = string.Empty;
+        themeFilter = string.Empty;
+        searchResults = sampleGuides.ToList();
+        hasSearched = true;
+    }
+
+    private void SetViewMode(string mode)
+    {
+        viewMode = mode;
+    }
+
+    private void ViewGuideProfile(int guideId)
+    {
+        Logger?.LogInformation($"Viewing profile for guide ID: {guideId}");
+        Navigation?.NavigateTo($"/user/guides/profile/{guideId}");
+    }
+
+    private void ContactGuide(int guideId)
+    {
+        Logger?.LogInformation($"Contacting guide ID: {guideId}");
+        // TODO: Open contact modal or navigate to contact page
+    }
+
+    private async Task LoadSampleGuides()
+    {
+        await Task.Delay(100);
+        
+        sampleGuides = new List<GuideItem>
+        {
+            new GuideItem
+            {
+                Id = 1,
+                Name = "Pynhun Syiem",
+                Location = "Shillong",
+                Languages = new[] { "English", "Khasi", "Hindi" },
+                Specializations = new[] { "Adventure", "Culture", "Photography" },
+                Description = "Experienced local guide specializing in Khasi culture and adventure tourism.",
+                Rating = 5,
+                ReviewCount = 47,
+                PricePerDay = 2500
+            },
+            new GuideItem
+            {
+                Id = 2,
+                Name = "Mary Lyngdoh",
+                Location = "Cherrapunji",
+                Languages = new[] { "English", "Khasi" },
+                Specializations = new[] { "Nature", "Waterfall", "Village" },
+                Description = "Expert in waterfall trails and village tourism.",
+                Rating = 4,
+                ReviewCount = 32,
+                PricePerDay = 2200
+            },
+            new GuideItem
+            {
+                Id = 3,
+                Name = "John Marak",
+                Location = "Tura",
+                Languages = new[] { "English", "Garo", "Hindi" },
+                Specializations = new[] { "Adventure", "Cave", "Folklore" },
+                Description = "Garo hills specialist with extensive knowledge of local folklore.",
+                Rating = 4,
+                ReviewCount = 28,
+                PricePerDay = 2000
+            },
+            new GuideItem
+            {
+                Id = 4,
+                Name = "Dapha Marbaniang",
+                Location = "Mawlynnong",
+                Languages = new[] { "English", "Khasi" },
+                Specializations = new[] { "Village", "Nature", "Photography" },
+                Description = "Local guide from Asia's cleanest village.",
+                Rating = 5,
+                ReviewCount = 56,
+                PricePerDay = 2800
+            },
+            new GuideItem
+            {
+                Id = 5,
+                Name = "Ribok Sangma",
+                Location = "Williamnagar",
+                Languages = new[] { "English", "Garo" },
+                Specializations = new[] { "Wildlife", "Nature", "Adventure" },
+                Description = "Wildlife enthusiast and nature guide.",
+                Rating = 4,
+                ReviewCount = 19,
+                PricePerDay = 2300
+            },
+            new GuideItem
+            {
+                Id = 6,
+                Name = "Baitlang Syiem",
+                Location = "Nongriat",
+                Languages = new[] { "English", "Khasi", "Hindi" },
+                Specializations = new[] { "Adventure", "Nature", "Photography" },
+                Description = "Living root bridge specialist.",
+                Rating = 5,
+                ReviewCount = 41,
+                PricePerDay = 3000
+            }
+        };
+        
+        searchResults = sampleGuides.ToList();
+    }
+
+    public class GuideItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+        public string[] Languages { get; set; } = Array.Empty<string>();
+        public string[] Specializations { get; set; } = Array.Empty<string>();
+        public string Description { get; set; } = string.Empty;
+        public int Rating { get; set; }
+        public int ReviewCount { get; set; }
+        public decimal PricePerDay { get; set; }
+    }
+}

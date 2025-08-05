@@ -17,28 +17,41 @@ namespace MAUI
 
             builder.Services.AddMauiBlazorWebView();
 
-            // Use API_BASE_URL environment variable if set, otherwise fallback to default
-            var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
+            // Configure HttpClient with proper Android emulator support
+            string backendUrl = GetBackendUrl();
+            
+            // Add detailed logging for debugging
+            builder.Services.AddLogging(logging =>
+            {
+                logging.AddDebug();
+                logging.SetMinimumLevel(LogLevel.Debug);
+            });
+
+            // Register HttpClient with Android-specific configuration
+            builder.Services.AddScoped(sp =>
+            {
+                var logger = sp.GetRequiredService<ILogger<HttpClient>>();
+                logger.LogInformation($"[MAUI] Configuring HttpClient with BaseAddress: {backendUrl}");
+                
+                // Create HttpClientHandler with Android-specific settings
+                var handler = new HttpClientHandler();
+                
 #if ANDROID
-            string backendUrl;
-            if (!string.IsNullOrEmpty(apiBaseUrl))
-            {
-                backendUrl = apiBaseUrl
-                    .Replace("localhost", "10.0.2.2")
-                    .Replace("127.0.0.1", "10.0.2.2");
-                if (!backendUrl.EndsWith("/"))
-                    backendUrl += "/";
-                System.Diagnostics.Debug.WriteLine($"[MAUI ANDROID] Using backendUrl: {backendUrl}");
-            }
-            else
-            {
-                backendUrl = "http://10.0.2.2:5499/";
-                System.Diagnostics.Debug.WriteLine($"[MAUI ANDROID] Using fallback backendUrl: {backendUrl}");
-            }
-#else
-            var backendUrl = apiBaseUrl ?? "http://localhost:5499/";
+                // For Android, we need to bypass SSL issues in development
+                handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
 #endif
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(backendUrl) });
+                
+                var httpClient = new HttpClient(handler)
+                {
+                    BaseAddress = new Uri(backendUrl),
+                    Timeout = TimeSpan.FromSeconds(30)
+                };
+                
+                // Add default headers
+                httpClient.DefaultRequestHeaders.Add("User-Agent", "TouristHub-MAUI");
+                
+                return httpClient;
+            });
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
@@ -46,6 +59,22 @@ namespace MAUI
 #endif
 
             return builder.Build();
+        }
+
+        private static string GetBackendUrl()
+        {
+#if ANDROID
+            // For Android emulator, always use 10.0.2.2 which maps to host's localhost
+            var backendUrl = "http://10.0.2.2:5500/";
+            System.Diagnostics.Debug.WriteLine($"[MAUI ANDROID] Using hardcoded Android emulator URL: {backendUrl}");
+            return backendUrl;
+#else
+            // Try to get from environment variable first for other platforms
+            var apiBaseUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
+            var backendUrl = apiBaseUrl ?? "http://localhost:5500/";
+            System.Diagnostics.Debug.WriteLine($"[MAUI] Using URL: {backendUrl}");
+            return backendUrl;
+#endif
         }
     }
 }
